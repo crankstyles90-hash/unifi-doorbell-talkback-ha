@@ -1,0 +1,15 @@
+# go2rtc configuration (/config/go2rtc.yaml in the go2rtc add-on)
+# Replace the placeholders:
+#   <CONSOLE-IP>   UniFi console / NVR IP (e.g. 192.168.1.1)
+#   <RTSP-ALIAS>   rtspAlias of an RTSP-enabled channel of the doorbell
+#   <CAMERA-IP>    IP of the doorbell itself (Protect API: "host")
+# Adjust -ar 24000 / libopus to your camera's talkbackSettings.
+
+streams:
+  doorbell_talk:
+    # Video + audio from Protect. backchannel=0: don't try RTSP talkback
+    - rtspx://<CONSOLE-IP>:7441/<RTSP-ALIAS>#backchannel=0
+    # Transcode doorbell audio to Opus for WebRTC playback
+    - ffmpeg:doorbell_talk#audio=opus
+    # Talkback: browser mic (PCMA/8000 on stdin) -> Opus 24 kHz RTP -> camera:7004
+    - "exec:ffmpeg -hide_banner -loglevel error -fflags nobuffer -f alaw -ar 8000 -ac 1 -i - -af aresample=24000 -c:a libopus -b:a 48k -frame_duration 20 -ar 24000 -ac 1 -f rtp udp://<CAMERA-IP>:7004#backchannel=1#audio=alaw/8000"
