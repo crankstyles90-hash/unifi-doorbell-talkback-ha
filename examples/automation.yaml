@@ -1,0 +1,23 @@
+alias: "Doorbell: stop talkback automatically"
+description: >-
+  Turns the talkback microphone off after 3 minutes, and when the doorbell
+  popup closes. Replace input_boolean.doorbell_popup with whatever opens your
+  doorbell view (or remove that trigger).
+mode: restart
+triggers:
+  - trigger: state
+    entity_id: input_boolean.doorbell_talk
+    to: "on"
+    for:
+      minutes: 3
+  - trigger: state
+    entity_id: input_boolean.doorbell_popup
+    to: "off"
+conditions:
+  - condition: state
+    entity_id: input_boolean.doorbell_talk
+    state: "on"
+actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.doorbell_talk
