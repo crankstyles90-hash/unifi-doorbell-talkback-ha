@@ -1,0 +1,41 @@
+# Dashboard card: doorbell live view + talkback toggle
+# Needs: WebRTC Camera (custom:webrtc-camera), helper input_boolean.doorbell_talk
+type: vertical-stack
+cards:
+  # Live view WITHOUT microphone (toggle off)
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_boolean.doorbell_talk
+        state_not: "on"
+    card:
+      type: custom:webrtc-camera
+      url: doorbell_talk
+      mode: webrtc
+      media: video,audio
+      muted: false
+      style: >-
+        video {aspect-ratio: 3/4; object-fit: cover;}
+        .mode, .screenshot, .pictureinpicture, .fullscreen {display: none !important;}
+  # Live view WITH microphone (toggle on) – only now the mic is opened
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_boolean.doorbell_talk
+        state: "on"
+    card:
+      type: custom:webrtc-camera
+      url: doorbell_talk
+      mode: webrtc
+      media: video,audio,microphone
+      muted: false
+      style: >-
+        video {aspect-ratio: 3/4; object-fit: cover;}
+        .mode, .screenshot, .pictureinpicture, .fullscreen {display: none !important;}
+  # Talk button
+  - type: tile
+    entity: input_boolean.doorbell_talk
+    name: Talk to the door
+    icon: mdi:microphone
+    tap_action:
+      action: toggle
